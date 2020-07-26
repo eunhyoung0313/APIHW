@@ -7,11 +7,12 @@ var mapContainer = document.getElementById('map'), // 지도를 표시할 div
 
 // 지도를 생성합니다    
 var map = new kakao.maps.Map(mapContainer, mapOption); 
+var markerlist = []
+let overlaylist = []
 
 // 장소 검색 객체를 생성합니다
 
 var ps = new kakao.maps.services.Places(); 
-
 
 // 키워드로 장소를 검색합니다
 // let search_info = document.getElementbyId('search_info').value
@@ -27,8 +28,13 @@ function placesSearchCB (data, status, pagination) {
         // LatLngBounds 객체에 좌표를 추가합니다
         var bounds = new kakao.maps.LatLngBounds();
         for (var i=0; i<data.length; i++) {
-            displayMarker(data[i]);  
+            displayMarker(data[i]);
+            markerlist.push(displayMarker(data[i])[0]); 
+            
+            console.log(markerlist ,'마커리스트에 넣어짐')
             bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
+            overlaylist.push(displayMarker(data[i])[1])
+            console.log(overlaylist, '오버레이리스트 생성된다')
 
         }       
 
@@ -66,17 +72,22 @@ function displayMarker(place) {
     var overlay = new kakao.maps.CustomOverlay({
      content: overlay_content,
      map: map,
-     position: marker.getPosition() 
-
+     position: marker.getPosition()  
     })
+ 
+    return [marker, overlay]
 };
 
-// 마커를 클릭했을 때 커스텀 오버레이를 표시합니다
-kakao.maps.event.addListener(marker, 'click', function() {
-    overlay.setMap();
-
-});
-
-function closeOverlay() {
-    overlay.setMap(null);     
+// 마커를 클릭했을 때 커스텀 오버레이를 표시합니
+for(let j = 0; j < markerlist.length; j++){
+kakao.maps.event.addListener(markerlist[j], 'click', function() {
+    overlaylist[j].setMap(map);
+    console.log("클릭시 오버레이 함수 작동")
+    });
 }
+
+
+
+// function closeOverlay() {
+//     overlaylist[j].setMap(null);     
+// }
